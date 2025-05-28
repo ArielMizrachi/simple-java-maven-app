@@ -72,3 +72,27 @@ jobs:
         with:
           push: true
           tags: arielmizrachi/maven-app:latest
+          
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.KEY_FILE }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Deploy app on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@44.203.181.161 << 'EOF'
+          docker pull arielmizrachi/maven-app:latest &&
+          docker stop wmaven-app || true &&
+          docker rm maven-app || true &&
+          docker run -d --name maven-app -p 80:8000 arielmizrachi/maven-app:latest
+          EOF
+
+    
