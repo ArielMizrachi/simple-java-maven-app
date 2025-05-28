@@ -33,7 +33,7 @@
     </pluginManagement>
     <plugins>
       <plugin>
-        <!-- Build an executable JARRr -->
+        <!-- Build an executable JARRrr -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.4.2</version>
