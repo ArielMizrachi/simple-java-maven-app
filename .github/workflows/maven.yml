@@ -25,13 +25,13 @@ jobs:
     - name: Get current version
       id: get_version
       run: |
-        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) #get the version
         echo "Current version: $VERSION"
-        IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION" #seperate it into 3 parts
         NEW_PATCH=$((PATCH + 1))
-        NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+        NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH" #add the new version
         echo "New version: $NEW_VERSION"
-        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT #expose it to other parts in the pipeline
 
     - name: Update pom.xml version
       run: mvn versions:set -DnewVersion=${{ steps.get_version.outputs.new_version }} -DgenerateBackupPoms=false  
@@ -39,10 +39,11 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Commit version bump
-      run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        git add pom.xml
-        git commit -m "Bump patch version to ${{ steps.get_version.outputs.new_version }}"
-        git push
+    # update the patch in the repo, but you will need to pull each and every time 
+    # - name: Commit version bump 
+    #   run: |
+    #     git config user.name "GitHub Actions"
+    #     git config user.email "actions@github.com"
+    #     git add pom.xml
+    #     git commit -m "Bump patch version to ${{ steps.get_version.outputs.new_version }}"
+    #     git push
